@@ -8,8 +8,12 @@ const NOTE_STORE = 'chappy-note-posts';
 const DEFAULT_MODEL = 'gpt-5.6-luna';
 const DEFAULT_URLNAME = 'libertas_reiya';
 
+function env(name) {
+  return Netlify.env.get(name) || '';
+}
+
 function noteStore() {
-  return getStore(NOTE_STORE);
+  return getStore(NOTE_STORE, { consistency: 'strong' });
 }
 
 function stripHtml(html = '') {
@@ -75,7 +79,7 @@ export async function listNoteHistory(limit = 30) {
   const listed = await store.list({ prefix: 'note/' });
   const rows = [];
   for (const item of listed.blobs) {
-    const rec = await store.get(item.key, { type: 'json', consistency: 'strong' });
+    const rec = await store.get(item.key, { type: 'json' });
     if (rec) rows.push(rec);
   }
   rows.sort((a, b) => new Date(b.publishedAt || b.createdAt) - new Date(a.publishedAt || a.createdAt));
@@ -89,10 +93,10 @@ async function saveNoteHistory(record) {
 }
 
 export async function generateNoteArticle() {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = env('OPENAI_API_KEY');
   if (!apiKey) throw new Error('OPENAI_API_KEY is missing.');
 
-  const model = process.env.OPENAI_MODEL || DEFAULT_MODEL;
+  const model = env('OPENAI_MODEL') || DEFAULT_MODEL;
   const history = await listNoteHistory(30);
   const recentTitles = history.map(x => x.title).filter(Boolean);
   const todayJst = new Intl.DateTimeFormat('ja-JP', {
@@ -184,10 +188,11 @@ function extractCookieFromLogin(res, data) {
 }
 
 export async function noteLogin() {
-  if (process.env.NOTE_SESSION_COOKIE) return process.env.NOTE_SESSION_COOKIE.trim();
+  const sessionCookie = env('NOTE_SESSION_COOKIE');
+  if (sessionCookie) return sessionCookie.trim();
 
-  const email = process.env.NOTE_EMAIL;
-  const password = process.env.NOTE_PASSWORD;
+  const email = env('NOTE_EMAIL');
+  const password = env('NOTE_PASSWORD');
   if (!email || !password) throw new Error('NOTE_EMAIL / NOTE_PASSWORD (or NOTE_SESSION_COOKIE) is missing.');
 
   const res = await fetch(`${NOTE_API_BASE}/v1/sessions/sign_in`, {
@@ -311,7 +316,7 @@ export async function publishArticleToNote(article) {
 
   const publishedData = published?.data || published || {};
   const finalKey = publishedData?.key || publishedData?.noteKey || noteKey;
-  const urlname = process.env.NOTE_URLNAME || DEFAULT_URLNAME;
+  const urlname = env('NOTE_URLNAME') || DEFAULT_URLNAME;
   return {
     noteKey: finalKey,
     url: `https://note.com/${urlname}/n/${finalKey}`,
@@ -320,7 +325,7 @@ export async function publishArticleToNote(article) {
 }
 
 function isEnabled(name, defaultValue = false) {
-  const value = process.env[name];
+  const value = env(name);
   if (value == null || value === '') return defaultValue;
   return String(value).toLowerCase() === 'true';
 }
@@ -331,8 +336,8 @@ export async function runNoteAutopost({ force = false } = {}) {
   }
 
   const required = ['OPENAI_API_KEY'];
-  if (!process.env.NOTE_SESSION_COOKIE) required.push('NOTE_EMAIL', 'NOTE_PASSWORD');
-  const missing = required.filter(k => !process.env[k]);
+  if (!env('NOTE_SESSION_COOKIE')) required.push('NOTE_EMAIL', 'NOTE_PASSWORD');
+  const missing = required.filter(k => !env(k));
   if (missing.length) {
     return { ok: true, skipped: true, reason: `Missing env: ${missing.join(', ')}` };
   }
@@ -347,7 +352,7 @@ export async function runNoteAutopost({ force = false } = {}) {
     url: result.url,
     createdAt: new Date().toISOString(),
     publishedAt: new Date().toISOString(),
-    model: process.env.OPENAI_MODEL || DEFAULT_MODEL
+    model: env('OPENAI_MODEL') || DEFAULT_MODEL
   };
   await saveNoteHistory(record);
   await appendAudit('NOTE_AUTO_PUBLISHED', { title: article.title, url: result.url, noteKey: result.noteKey });

@@ -6,6 +6,9 @@
   "scripts": {
     "deploy": "wrangler deploy"
   },
+  "dependencies": {
+    "@netlify/blobs": "^11.0.3"
+  },
   "devDependencies": {
     "wrangler": "^4.35.0"
   }
