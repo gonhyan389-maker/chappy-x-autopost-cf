@@ -8,6 +8,10 @@
 [functions."run-scheduler"]
   schedule = "*/15 * * * *"
 
+# 20:30 JST = 11:30 UTC
+[functions."run-note-autopost"]
+  schedule = "30 11 * * *"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
