@@ -63,7 +63,7 @@
     <section class="card"><div class="row"><h2>接続状態</h2><button class="ghost" onclick="refreshX()">更新</button></div><div id="xStatus" class="status"><span class="pill">未確認</span></div><div class="buttons"><button class="primary" onclick="connectX()">Xを接続</button></div></section>
     <section class="card"><h2>緊急停止</h2><p class="sub">OFFなら承認済みでもXへ送信しません。</p><button id="switchBtn" class="dangerBtn" onclick="togglePosting()">投稿停止中</button></section>
     <section class="card wide"><h2>新規下書き</h2><label>投稿本文</label><textarea id="xText" placeholder="ここにX投稿本文"></textarea><label>予約日時（日本時間）</label><input id="when" type="datetime-local"><label><input id="ai" type="checkbox" style="width:auto;margin-right:8px">AI生成メディアを含む（内部メモ）</label><div class="buttons"><button class="primary" onclick="createDraft()">下書き保存</button></div><p class="tiny">保存だけでは投稿されません。一覧で承認すると予約対象になります。</p></section>
-    <section class="card wide"><div class="row"><h2>投稿キュー</h2><div><button class="primary" onclick="seedWeek()">7日分42本を作成</button><button class="ghost" onclick="loadPosts()">再読込</button></div></div><div id="posts">まだ読み込んでいません。</div></section>
+    <section class="card wide"><div class="row"><h2>投稿キュー</h2><button class="ghost" onclick="loadPosts()">再読込</button></div><p class="tiny">AI COACH VIDEO前提の旧「7日分42本」生成ボタンは外しました。今後はSIDE LOOP用の投稿生成に置き換えます。</p><div id="posts">まだ読み込んでいません。</div></section>
   </div>
 </section>
 
