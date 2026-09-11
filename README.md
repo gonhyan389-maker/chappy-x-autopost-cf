@@ -1,6 +1,27 @@
-# Chappy AutoPost
+# Chappy AutoPost / SIDE LOOP
 
-Private automation for Reiya / Chappy. Existing X posting remains approval-first. The added note workflow can generate and publish one free note article per day from Netlify without requiring a PC to stay on.
+Private automation for Reiya / Chappy. The admin dashboard is now branded **SIDE LOOP** and combines Rakuten ROOM assistance, approval-first X posting, and note automation.
+
+## SIDE LOOP dashboard
+
+- **Rakuten ROOM assistant**: automatically searches Rakuten Ichiba, scores candidate products using review volume/rating, affiliate rate, point rate and price range, creates a <=500-character ROOM comment, and excludes products already marked POSTED or SKIPPED.
+- **X**: keeps the existing approval-first scheduled posting queue and global kill switch.
+- **note**: surfaces the existing daily 20:30 JST auto-publish workflow and a protected manual publish action.
+
+## Rakuten ROOM setup
+
+Uses the official Rakuten Ichiba Item Search API `2026-07-01`.
+
+Required Netlify environment variables:
+
+- `RAKUTEN_APP_ID`
+- `RAKUTEN_ACCESS_KEY`
+
+Optional:
+
+- `RAKUTEN_AFFILIATE_ID` — when present, returned item URLs are affiliate-enabled.
+
+ROOM itself is kept approval/manual at the final step: SIDE LOOP selects the product, prepares the comment, copies it, and opens the Rakuten product page. The user completes the final ROOM post.
 
 ## X safety model
 
@@ -26,13 +47,13 @@ Required environment variables:
 - `NOTE_AUTOPUBLISH_ENABLED=true`
 - `NOTE_URLNAME=libertas_reiya`
 - `OPENAI_API_KEY` (secret)
-- `OPENAI_MODEL=gpt-5.6-luna` (or another compatible Responses API model)
+- `OPENAI_MODEL` (a compatible Responses API model)
 - Authentication: either `NOTE_SESSION_COOKIE` (secret) **or** both `NOTE_EMAIL` and `NOTE_PASSWORD` (secrets)
 - Optional: `NOTE_X_ANNOUNCE_ENABLED=true` to announce the published URL via the existing X connection
 
 ### Important limitation
 
-note.com does not provide a public article-posting API. This workflow therefore uses note.com's **unofficial internal web API**, based on current community implementations. It may stop working if note changes its editor/API or authentication behavior. Keep the posting rate low and never commit note credentials or session cookies to GitHub.
+note.com does not provide a public article-posting API used by this project. This workflow therefore uses note.com's **unofficial internal web API**, based on current community implementations. It may stop working if note changes its editor/API or authentication behavior. Keep the posting rate low and never commit note credentials or session cookies to GitHub.
 
 ## X setup
 

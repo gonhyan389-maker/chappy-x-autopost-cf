@@ -2,71 +2,78 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chappy X AutoPost</title>
-<style>
-:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:dark}
-body{margin:0;background:#0b0d10;color:#f6f7f9}
-main{max-width:980px;margin:0 auto;padding:28px 18px 60px}
-h1{font-size:28px;margin:0 0 6px}.sub{color:#9ca6b4;margin:0 0 26px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#14181d;border:1px solid #252b33;border-radius:18px;padding:18px}.wide{grid-column:1/-1}
-label{display:block;font-size:13px;color:#aab3bf;margin:12px 0 6px}textarea,input{width:100%;box-sizing:border-box;background:#0e1115;color:#fff;border:1px solid #343c46;border-radius:12px;padding:12px;font:inherit}textarea{min-height:130px;resize:vertical}
-button{border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;margin:4px 6px 4px 0}.primary{background:#f4f7fb;color:#111}.good{background:#2f9e64;color:white}.warn{background:#bd7a1a;color:#fff}.danger{background:#b53d48;color:white}.ghost{background:#252b33;color:#fff}.off{opacity:.55}
-.status{display:flex;gap:8px;flex-wrap:wrap}.pill{padding:7px 10px;border-radius:999px;background:#252b33;font-size:13px}.post{border-top:1px solid #2a3038;padding:14px 0}.post:first-child{border-top:0}.postText{white-space:pre-wrap;line-height:1.55}.meta{font-size:12px;color:#97a1ad;margin-top:8px}.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.secret{display:flex;gap:8px}.secret input{flex:1}.msg{font-size:13px;color:#9fd6ac;min-height:18px}.error{color:#ff9da7}.tiny{font-size:12px;color:#8d98a5}code{background:#20262d;padding:2px 5px;border-radius:6px}@media(max-width:700px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}}
-</style>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0c10">
+<title>SIDE LOOP｜副業投稿ダッシュボード</title>
+<link rel="stylesheet" href="/side-loop.css">
 </head>
 <body>
 <main>
-<h1>Chappy X AutoPost</h1>
-<p class="sub">れいや専用｜承認付きX予約投稿</p>
-<div class="grid">
-<section class="card wide">
-  <label>管理シークレット</label>
-  <div class="secret"><input id="secret" type="password" placeholder="ADMIN_SECRET"><button class="primary" onclick="saveSecret()">接続</button></div>
-  <p class="tiny">ブラウザにはsessionStorageでのみ保持。Xのトークンはブラウザへ出しません。</p>
-  <div id="msg" class="msg"></div>
-</section>
-<section class="card">
-  <div class="row"><h2>接続状態</h2><button class="ghost" onclick="refreshAll()">更新</button></div>
-  <div id="status" class="status"><span class="pill">未確認</span></div>
-  <div style="margin-top:14px"><button class="primary" onclick="connectX()">Xを接続</button></div>
-</section>
-<section class="card">
-  <h2>緊急停止</h2>
-  <p class="tiny">OFFなら、承認済み投稿もXへ送信しません。</p>
-  <button id="switchBtn" class="danger" onclick="togglePosting()">投稿停止中</button>
-</section>
-<section class="card wide">
-  <h2>新規下書き</h2>
-  <label>投稿本文</label><textarea id="text" placeholder="ここにX投稿本文"></textarea>
-  <label>予約日時（日本時間）</label><input id="when" type="datetime-local">
-  <label><input id="ai" type="checkbox" style="width:auto;margin-right:8px">AI生成メディアを含む（内部メモ。X送信時のラベル仕様は別途公式確認）</label>
-  <button class="primary" onclick="createDraft()">下書き保存</button>
-  <p class="tiny">保存だけでは投稿されません。下の一覧で「承認」して初めて予約対象になります。</p>
-</section>
-<section class="card wide">
-  <div class="row"><h2>投稿キュー</h2><div><button class="primary" onclick="seedWeek()">7日分42本を作成</button><button class="ghost" onclick="loadPosts()">再読込</button></div></div>
-  <div id="posts">まだ読み込んでいません。</div>
-</section>
+<div class="top">
+  <div class="brand"><div class="logo">SL</div><div class="title"><h1>SIDE LOOP</h1><p>れいや専用｜副業の「探す・考える・投稿する」をまとめる</p></div></div>
+  <button class="ghost" onclick="refreshAll()">更新</button>
 </div>
+
+<div class="card" style="margin-bottom:14px">
+  <label>管理シークレット</label>
+  <div class="secretRow"><input id="secret" type="password" placeholder="ADMIN_SECRET"><button class="primary" onclick="saveSecret()">接続</button></div>
+  <div id="msg" class="msg"></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="home" onclick="showTab('home',this)">ホーム</button>
+  <button class="tab" data-tab="room" onclick="showTab('room',this)">楽天ROOM</button>
+  <button class="tab" data-tab="x" onclick="showTab('x',this)">X自動投稿</button>
+  <button class="tab" data-tab="note" onclick="showTab('note',this)">note</button>
+</div>
+
+<section id="panel-home" class="panel active">
+  <div class="hero">
+    <div class="card heroCopy"><h2>今日やることを、ここだけに。</h2><p class="sub">楽天ROOMは候補と文章まで自動。Xは承認後に予約投稿。noteは設定済みなら毎日20:30に自動投稿。</p><div class="buttons"><button class="primary" onclick="goRoom()">今日のROOM候補を出す</button><button class="ghost" onclick="showTabByName('x')">Xキューを見る</button></div></div>
+    <div class="metricGrid">
+      <div class="metric"><b id="metricRoom">-</b><span>ROOM 投稿済み</span></div>
+      <div class="metric"><b id="metricX">-</b><span>X 投稿済み</span></div>
+      <div class="metric"><b id="metricDraft">-</b><span>X 下書き</span></div>
+      <div class="metric"><b id="metricNote">-</b><span>note 自動投稿</span></div>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="card"><h3>楽天ROOM</h3><div id="homeRoomStatus" class="status"><span class="pill">未確認</span></div><p class="sub">商品探し・比較・投稿文作成を省略。最後のROOM投稿だけ自分で押す。</p><button class="primary" onclick="goRoom()">候補を見る</button></div>
+    <div class="card"><h3>X</h3><div id="homeXStatus" class="status"><span class="pill">未確認</span></div><p class="sub">下書きを承認すると、指定時刻以降に自動投稿。</p><button class="primary" onclick="showTabByName('x')">Xを開く</button></div>
+    <div class="card wide"><h3>note</h3><div id="homeNoteStatus" class="status"><span class="pill">未確認</span></div><p class="sub">設定済みなら毎日20:30（日本時間）に無料記事を自動生成・投稿。</p><button class="ghost" onclick="showTabByName('note')">note設定を見る</button></div>
+  </div>
+</section>
+
+<section id="panel-room" class="panel">
+  <div class="card wide">
+    <div class="row"><div><h2>楽天ROOM 投稿アシスタント</h2><p class="sub">空欄なら季節＋定番ジャンルから自動選定。投稿済み・スキップ済み商品は候補から除外。</p></div><div id="roomStatus" class="status"></div></div>
+    <div class="roomTools">
+      <div><label>探したいキーワード（任意）</label><input id="roomKeyword" placeholder="空欄＝今日のおすすめを自動選定"></div>
+      <div><label>候補数</label><select id="roomLimit"><option>5</option><option selected>8</option><option>10</option></select></div>
+      <button id="roomSuggestBtn" class="primary" onclick="loadRoomSuggestions()">候補を出す</button>
+    </div>
+    <p class="tiny">「投稿準備」でコメントをコピーし、楽天商品ページを開きます。楽天側の「ROOMに投稿する」から貼り付けて投稿してください。</p>
+    <div id="roomSetup" class="notice hidden"></div>
+    <div id="roomList" class="roomList"><p class="tiny">まだ候補を取得していません。</p></div>
+  </div>
+</section>
+
+<section id="panel-x" class="panel">
+  <div class="grid">
+    <section class="card"><div class="row"><h2>接続状態</h2><button class="ghost" onclick="refreshX()">更新</button></div><div id="xStatus" class="status"><span class="pill">未確認</span></div><div class="buttons"><button class="primary" onclick="connectX()">Xを接続</button></div></section>
+    <section class="card"><h2>緊急停止</h2><p class="sub">OFFなら承認済みでもXへ送信しません。</p><button id="switchBtn" class="dangerBtn" onclick="togglePosting()">投稿停止中</button></section>
+    <section class="card wide"><h2>新規下書き</h2><label>投稿本文</label><textarea id="xText" placeholder="ここにX投稿本文"></textarea><label>予約日時（日本時間）</label><input id="when" type="datetime-local"><label><input id="ai" type="checkbox" style="width:auto;margin-right:8px">AI生成メディアを含む（内部メモ）</label><div class="buttons"><button class="primary" onclick="createDraft()">下書き保存</button></div><p class="tiny">保存だけでは投稿されません。一覧で承認すると予約対象になります。</p></section>
+    <section class="card wide"><div class="row"><h2>投稿キュー</h2><div><button class="primary" onclick="seedWeek()">7日分42本を作成</button><button class="ghost" onclick="loadPosts()">再読込</button></div></div><div id="posts">まだ読み込んでいません。</div></section>
+  </div>
+</section>
+
+<section id="panel-note" class="panel">
+  <div class="grid">
+    <section class="card"><h2>note 自動投稿</h2><div id="noteStatus" class="status"><span class="pill">未確認</span></div><p class="sub">現在の設定では毎日20:30（JST）に1本投稿する構成。</p><div class="buttons"><button class="warnBtn" onclick="runNoteNow()">今すぐ1本投稿する</button></div><p class="tiny">このボタンは確認後、実際に公開まで進みます。note側の仕様変更で失敗する場合があります。</p></section>
+    <section class="card"><h2>運用方針</h2><p class="sub">Xへの告知は別設定。note本文は実績や売上を勝手に作らない方針で生成。</p><div class="notice">noteには一般公開の投稿APIがないため、現在の自動投稿は既存の内部Web API実装に依存しています。壊れた場合はここでエラーを確認できます。</div></section>
+  </div>
+</section>
 </main>
-<script>
-let secret=sessionStorage.getItem('chappy_admin_secret')||'';let settings={postingEnabled:false};
-document.getElementById('secret').value=secret;
-function auth(){return {'authorization':'Bearer '+secret,'content-type':'application/json'}}
-function setMsg(t,err=false){const e=document.getElementById('msg');e.textContent=t;e.className='msg'+(err?' error':'')}
-async function api(path,opt={}){const r=await fetch('/api/'+path,{...opt,headers:{...auth(),...(opt.headers||{})}});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||JSON.stringify(data)||r.status);return data}
-async function saveSecret(){secret=document.getElementById('secret').value.trim();sessionStorage.setItem('chappy_admin_secret',secret);await refreshAll()}
-async function refreshAll(){try{const d=await api('status');settings=d.settings;document.getElementById('status').innerHTML=`<span class="pill">X: ${d.xConnected?'接続済み':'未接続'}</span><span class="pill">下書き ${d.counts.draft}</span><span class="pill">承認済み ${d.counts.approved}</span><span class="pill">投稿済み ${d.counts.posted}</span><span class="pill">エラー ${d.counts.error}</span>`;renderSwitch();await loadPosts();setMsg('接続しました')}catch(e){setMsg('接続できません: '+e.message,true)}}
-function renderSwitch(){const b=document.getElementById('switchBtn');if(settings.postingEnabled){b.textContent='自動投稿 ON（クリックで停止）';b.className='good'}else{b.textContent='投稿停止中（クリックでON）';b.className='danger'}}
-async function togglePosting(){if(!settings.postingEnabled){if(!confirm('自動投稿をONにします。承認済みで時刻を過ぎた投稿は、次回スケジューラ実行時にXへ送信されます。ONにしますか？'))return}else{if(!confirm('全自動投稿を停止しますか？'))return}try{const d=await api('settings',{method:'POST',body:JSON.stringify({postingEnabled:!settings.postingEnabled})});settings=d.settings;renderSwitch();setMsg(settings.postingEnabled?'自動投稿をONにしました':'自動投稿を停止しました')}catch(e){setMsg(e.message,true)}}
-async function connectX(){try{const d=await api('x-auth-start');window.location.href=d.url}catch(e){setMsg(e.message,true)}}
-async function createDraft(){const text=document.getElementById('text').value.trim();const local=document.getElementById('when').value;if(!text||!local){setMsg('本文と予約日時を入れてください',true);return}const when=new Date(local);try{await api('posts',{method:'POST',body:JSON.stringify({text,scheduledFor:when.toISOString(),madeWithAi:document.getElementById('ai').checked})});document.getElementById('text').value='';setMsg('下書きを保存しました。まだ投稿されません。');await loadPosts()}catch(e){setMsg(e.message,true)}}
-async function seedWeek(){if(!confirm('明日から7日分、1日6本（ChatGPTプロンプト3本＋AI COACH VIDEO3本）を下書きとして作成します。まだ承認・投稿はされません。作成しますか？'))return;try{const d=await api('seed-week',{method:'POST',body:'{}'});setMsg(d.created+'本の下書きを作成しました。内容を確認して承認してください。');await loadPosts()}catch(e){setMsg(e.message==='WEEK_ALREADY_SEEDED'?'7日分はすでに作成済みです':e.message,true)}}
-async function loadPosts(){try{const d=await api('posts');const root=document.getElementById('posts');if(!d.posts.length){root.innerHTML='<p class="tiny">投稿はまだありません。</p>';return}root.innerHTML=d.posts.map(p=>`<div class="post"><div class="row"><strong>${escapeHtml(p.status)}${p.category?' / '+escapeHtml(p.category):''}</strong><span class="meta">${new Date(p.scheduledFor).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})}</span></div><div class="postText">${escapeHtml(p.text)}</div><div class="meta">ID: ${p.id}${p.xPostId?' / X ID: '+p.xPostId:''}${p.error?' / ERROR: '+escapeHtml(p.error):''}</div><div>${(p.status==='DRAFT'||p.status==='ERROR')?`<button class="good" onclick="act('${p.id}','approve')">承認</button>`:''}${p.status!=='POSTED'&&p.status!=='CANCELLED'?`<button class="danger" onclick="act('${p.id}','cancel')">取消</button>`:''}</div></div>`).join('')}catch(e){setMsg(e.message,true)}}
-async function act(id,action){if(action==='approve'&&!confirm('この投稿を承認しますか？全投稿スイッチがONで予約時刻を迎えるとXへ投稿されます。'))return;if(action==='cancel'&&!confirm('この予約を取り消しますか？'))return;try{await api('post-action',{method:'POST',body:JSON.stringify({id,action})});await refreshAll()}catch(e){setMsg(e.message,true)}}
-function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-if(secret)refreshAll();
-</script>
+<script src="/side-loop.js"></script>
 </body>
 </html>
